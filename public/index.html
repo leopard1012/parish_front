@@ -4,6 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id">
+    <script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
+    <script>
+      function init() {
+        gapi.load('auth2', () => {
+          gapi.auth2.init({ client_id: '458644208992-pthqd3fkgccvsd0ntbqcr6g7k3aguana.apps.googleusercontent.com', plugin_name: 'parish' }).then(() => {
+            console.log('init end!!');
+            const event = new Event('google-oauth-library-load');
+            window.dispatchEvent(event);
+          });
+        });
+      }
+    </script>
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
