@@ -7,20 +7,21 @@
         <table>
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th>이름</th>
+                    <th :key="index" v-for="{col,index} in cols">{{col}}</th>
+                    <!-- <th>No</th>
                     <th>이름</th>
                     <th>목자</th>
                     <th>예배날짜</th>
-                    <th>예배타입</th>
+                    <th>예배타입</th> -->
                 </tr>
             </thead>
             <tbody>
-                <tr :key="i" v-for="(item,i) in list">
-                    <td>{{item.row}}</td>
-                    <td>{{item.userName}}</td>
-                    <td>{{item.pastoralName}}</td>
-                    <td>{{item.serviceDate}}</td>
-                    <td>{{item.attendanceType}}</td>
+                <tr :key="index" v-for="(item,index) in list">
+                    <td>{{item}}</td>
+                    <td :key="i" v-for="(date,i) in cols">
+                        {{list.date}}
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -32,7 +33,12 @@ export default {
     // components: {},
     data() {
         return {
-            list: []
+            list: [],
+            users: [],
+            cols: [],
+            onMap: {},
+            offMap: {},
+            response: {}
         };
     },
     setup() {},
@@ -43,7 +49,27 @@ export default {
     unmounted() {},
     methods: {
         async search() {
-            this.list = await this.$api("http://146.56.115.236:8080/v1/attendance/1/date/2022/05/29","get");
+            // this.list = await this.$api("http://146.56.115.236:8080/v1/attendance/1/date/2022/05/29","get");
+            this.response = await this.$api("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17","get");
+            this.cols = this.response.cols;
+            this.users = this.response.pastoralUserList;
+            this.onMap = this.response.onMap;
+            this.offMap = this.response.offMap;
+
+            this.users.forEach(function(value) {
+                let userData = {};
+                userData.name = value;
+                this.cols.forEach(function(date){
+                    let type = '';
+                    if (this.onMap.get(value).includes(date)) {
+                        type = '온라인';
+                    } else if (this.offMap.get(value).includes(date)) {
+                        type = '현장';
+                    }
+                    userData.date = type;
+                });
+                this.list.put(userData);
+            });
         }
     }
 }
