@@ -4,16 +4,11 @@
         <button v-on:click="search">검색</button>
     </div>
     <div>    
-        <table>
+        <!-- <table>
             <thead>
                 <tr>
                     <th>이름</th>
                     <th :key="index" v-for="{col,index} in cols">{{col}}</th>
-                    <!-- <th>No</th>
-                    <th>이름</th>
-                    <th>목자</th>
-                    <th>예배날짜</th>
-                    <th>예배타입</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -24,52 +19,106 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table> -->
+        <v-main>
+            <v-row>
+                <div>
+                    <v-card>
+                        <v-data-table 
+                         :headers="headers" 
+                         :items="list">
+                        </v-data-table>
+                    </v-card>
+                </div>
+            </v-row>
+        </v-main>
     </div>
 </template>
 <script>
+import axios from 'axios';
 export default {
     // name: '',
     // components: {},
     data() {
         return {
             list: [],
-            users: [],
-            cols: [],
-            onMap: {},
-            offMap: {},
-            response: {}
+            headers: []
+            // users: [],
+            // cols: [],
+            // onMap: {},
+            // offMap: {},
+            // response: {}
         };
     },
-    setup() {},
-    created() {
-        // this.getList();
-    },
-    mounted() {},
-    unmounted() {},
+    // setup() {},
+    // created() {
+    //     // this.getList();
+    // },
+    // mounted() {},
+    // unmounted() {},
     methods: {
-        async search() {
+        search() {
             // this.list = await this.$api("http://146.56.115.236:8080/v1/attendance/1/date/2022/05/29","get");
-            this.response = await this.$api("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17","get");
-            this.cols = this.response.cols;
-            this.users = this.response.pastoralUserList;
-            this.onMap = this.response.onMap;
-            this.offMap = this.response.offMap;
+            // this.response = await this.$api("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17","get");
+            
+            axios.get("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17")
+                .then(response => {
+                    let cols = response.data.cols;
+                    let users = response.data.pastoralUserList;
+                    let onMap = response.data.onLineMap;
+                    let offMap = response.data.offLineMap;
 
-            this.users.forEach(function(value) {
-                let userData = {};
-                userData.name = value;
-                this.cols.forEach(function(date){
-                    let type = '';
-                    if (this.onMap.get(value).includes(date)) {
-                        type = '온라인';
-                    } else if (this.offMap.get(value).includes(date)) {
-                        type = '현장';
+                    let i = 0
+                    let j = 0;
+                    let k = 0;
+
+                    for(i = 0 ; i < users.length ; i++) {
+                        let userData = {};
+                        userData.name = users[i];
+                        for(j = 0 ; j < cols.length ; j++) {
+                            let type = '';
+                            if (onMap[users[i]].includes(cols[j])) {
+                                type = '온라인';
+                            } else if (offMap[users[i]].includes(cols[j])) {
+                                type = '현장';
+                            }
+                            userData[cols[j]] = type;
+                        }
+                        this.list.push(userData);
                     }
-                    userData.date = type;
+
+                    this.headers = [{ text:'이름', value:'name', align:'center', sortalbe:true }];
+                    for(k = 0 ; k < cols.length ; k++) {
+                        let colData = { text:cols[k], value:cols[k], align:'center', sortable:false };
+                        this.headers.push(colData);
+                    }
+                    
+
+                    // users.forEach(function(value) {
+                    //     let userData = {};
+                    //     userData.name = value;
+                    //     cols.forEach(function(date){
+                    //         let type = '';
+                    //         if (onMap.get(value).includes(date)) {
+                    //             type = '온라인';
+                    //         } else if (offMap.get(value).includes(date)) {
+                    //             type = '현장';
+                    //         }
+                    //         userData.date = type;
+                    //     });
+                    //     this.list.put(userData);
+                    // });
+                })
+                .catch(error => {
+                    alert(error)
                 });
-                this.list.put(userData);
-            });
+
+            // this.cols = this.response.cols;
+            // this.users = this.response.pastoralUserList;
+            // this.onMap = this.response.onMap;
+            // this.offMap = this.response.offMap;
+
+            
         }
     }
 }
