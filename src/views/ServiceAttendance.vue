@@ -1,37 +1,21 @@
 <template>
     <div>
-        <!-- <input type="text" v-bind="code" /> -->
-        <button v-on:click="search">검색</button>
+        <input type="text" v-bind="code" />
+        <b-button v-on:click="search">검색</b-button>
+        <b-form-checkbox-group
+            v-model="selectedMonths"
+            :options="months"
+            class="mb-3"
+            value-field="monthValue"
+            text-field="monthName"
+            disabled-field="notEnabled"
+        ></b-form-checkbox-group>
     </div>
-    <div>    
-        <!-- <table>
-            <thead>
-                <tr>
-                    <th>이름</th>
-                    <th :key="index" v-for="{col,index} in cols">{{col}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr :key="index" v-for="(item,index) in list">
-                    <td>{{item}}</td>
-                    <td :key="i" v-for="(date,i) in cols">
-                        {{list.date}}
-                    </td>
-                </tr>
-            </tbody>
-        </table> -->
-        <v-main>
-            <v-row>
-                <div>
-                    <v-card>
-                        <v-data-table 
-                         :headers="headers" 
-                         :items="list">
-                        </v-data-table>
-                    </v-card>
-                </div>
-            </v-row>
-        </v-main>
+    <div>
+        <b-table ref="table"
+            striped hover
+            :items="list"
+        ></b-table>
     </div>
 </template>
 <script>
@@ -42,12 +26,22 @@ export default {
     data() {
         return {
             list: [],
-            headers: []
-            // users: [],
-            // cols: [],
-            // onMap: {},
-            // offMap: {},
-            // response: {}
+            headers: [],
+            months: [
+                { monthName: '1월', monthValue: '01'},
+                { monthName: '2월', monthValue: '02'},
+                { monthName: '3월', monthValue: '03'},
+                { monthName: '4월', monthValue: '04'},
+                { monthName: '5월', monthValue: '05'},
+                { monthName: '6월', monthValue: '06'},
+                { monthName: '7월', monthValue: '07'},
+                { monthName: '8월', monthValue: '08'},
+                { monthName: '9월', monthValue: '09'},
+                { monthName: '10월', monthValue: '10'},
+                { monthName: '11월', monthValue: '11'},
+                { monthName: '12월', monthValue: '12'}
+            ],
+            selectedMonths: []
         };
     },
     // setup() {},
@@ -58,10 +52,23 @@ export default {
     // unmounted() {},
     methods: {
         search() {
+            // let params = {};
+            let months = [];
+            // params.pastoralCode = 1;
+            this.selectedMonths.forEach(function(value) {
+                months.push(value);
+            });
+
+            // params.months.push(months);
+
             // this.list = await this.$api("http://146.56.115.236:8080/v1/attendance/1/date/2022/05/29","get");
             // this.response = await this.$api("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17","get");
             
-            axios.get("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-17")
+            // axios.get("http://146.56.115.236:8080/v1/attendance/1/period/2022-05-01/2022-06-27")
+            axios.post("http://146.56.115.236:8080/v1/attendance/months",{
+                pastoralCode: 1,
+                months: months
+            })
                 .then(response => {
                     let cols = response.data.cols;
                     let users = response.data.pastoralUserList;
@@ -93,7 +100,7 @@ export default {
                         this.headers.push(colData);
                     }
                     
-
+                    this.$refs.table.refresh();
                     // users.forEach(function(value) {
                     //     let userData = {};
                     //     userData.name = value;
