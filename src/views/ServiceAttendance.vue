@@ -2,17 +2,25 @@
     <div>
         <input type="text" v-bind="code" />
         <b-button v-on:click="search">검색</b-button>
-        <b-form-checkbox-group
+        <!-- <b-form-checkbox-group
             v-model="selectedMonths"
             :options="months"
             class="mb-3"
             value-field="monthValue"
             text-field="monthName"
             disabled-field="notEnabled"
-        ></b-form-checkbox-group>
+        ></b-form-checkbox-group> -->
+        <b-form-radio-group
+            v-model="selectedMonths"
+            :options="months"
+            class="mb-3"
+            value-field="monthValue"
+            text-field="monthName"
+        />
+        
     </div>
     <div>
-        <b-table ref="table"
+        <b-table
             striped hover
             :items="list"
         ></b-table>
@@ -48,7 +56,9 @@ export default {
     // created() {
     //     // this.getList();
     // },
-    // mounted() {},
+    mounted() {
+        axios.get("http//146.56.115.236")
+    },
     // unmounted() {},
     methods: {
         search() {
@@ -100,7 +110,6 @@ export default {
                         this.headers.push(colData);
                     }
                     
-                    this.$refs.table.refresh();
                     // users.forEach(function(value) {
                     //     let userData = {};
                     //     userData.name = value;
@@ -126,7 +135,9 @@ export default {
             // this.offMap = this.response.offMap;
 
             
-        }
+        },
+
+        
     }
 }
 </script>
